@@ -1,0 +1,78 @@
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= typeof title !== 'undefined' ? title : 'RestaurantOS' %> · RestaurantOS</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: {
+              50: '#f0f0ff',
+              100: '#e1e1fe',
+              200: '#c8c7fd',
+              300: '#a6a2fa',
+              400: '#8276f6',
+              500: '#5e48ed',
+              600: '#4f46e5', // Brand Primary
+              700: '#4338ca',
+              800: '#3730a3',
+              900: '#312e81',
+            },
+            secondary: '#10B981', // Green for success
+          },
+          borderRadius: {
+            'xl': '12px',
+            '2xl': '16px',
+            '3xl': '24px',
+          },
+          fontFamily: {
+            inter: ['Inter', 'sans-serif'],
+            outfit: ['Outfit', 'sans-serif'],
+          },
+        }
+      }
+    }
+  </script>
+
+  <!-- Custom Styles -->
+  <link rel="stylesheet" href="/css/style.css">
+  
+  <style>
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #f1f1f1; }
+    ::-webkit-scrollbar-thumb { background: #888; border-radius: 10px; }
+    ::-webkit-scrollbar-thumb:hover { background: #555; }
+
+    .font-outfit { font-family: 'Outfit', sans-serif; }
+    
+    /* Smooth Transitions */
+    .transition-all-200 { transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
+    
+    /* Surfaces on #F3F4F6 canvas */
+    .shadow-premium {
+      box-shadow:
+        0 1px 3px rgba(15, 23, 42, 0.06),
+        0 12px 32px -8px rgba(15, 23, 42, 0.12);
+    }
+    .shadow-premium-hover:hover {
+      box-shadow:
+        0 4px 12px rgba(15, 23, 42, 0.08),
+        0 20px 40px -12px rgba(79, 70, 229, 0.15);
+    }
+    .shadow-surface {
+      box-shadow:
+        0 1px 2px rgba(15, 23, 42, 0.05),
+        0 6px 16px -4px rgba(15, 23, 42, 0.1);
+    }
+  </style>
+</head>

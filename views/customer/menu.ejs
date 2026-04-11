@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include('../partials/customer-head.ejs', { title: title }) %>
+<body class="min-h-screen bg-[#F3F4F6] font-sans text-gray-900 antialiased">
+  <div class="customer-page !max-w-2xl !pb-32">
+    <!-- Hero: white elevated surface -->
+    <div class="mb-5 rounded-2xl border border-gray-200 bg-white p-6 shadow-surface sm:p-7">
+      <header class="customer-header !p-0 text-center">
+        <div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center overflow-hidden rounded-2xl bg-gradient-to-br from-[#4F46E5] to-indigo-600 shadow-lg shadow-indigo-500/30 ring-4 ring-gray-100">
+          <% if (restaurantData.logo) { %>
+            <img src="<%= restaurantData.logo %>" alt="" class="h-full w-full object-cover">
+          <% } else { %>
+            <span class="text-3xl" aria-hidden="true">🍽️</span>
+          <% } %>
+        </div>
+        <h1 class="font-outfit text-2xl font-extrabold tracking-tight text-gray-900 sm:text-3xl"><%= restaurantData.name %></h1>
+        <p class="mt-1.5 text-sm text-gray-500">Order from your table in a few taps</p>
+        <div class="table-badge mt-5 inline-flex border border-indigo-200/80 shadow-sm">Table <%= table.table_number %></div>
+      </header>
+    </div>
+
+    <!-- Categories: nested white strip -->
+    <div class="mb-8 rounded-2xl border border-gray-200 bg-white p-3 shadow-surface">
+      <p class="mb-2 px-1 text-xs font-bold uppercase tracking-wider text-gray-400">Browse</p>
+      <div class="category-tabs !mb-0 !pb-0">
+        <button type="button" class="category-tab active shrink-0" data-cat="all" onclick="filterCategory('all', this)">All</button>
+        <% Object.keys(menuByCategory).forEach(cat => { %>
+          <button type="button" class="category-tab shrink-0" data-cat="<%= cat %>" onclick="filterCategory('<%= cat %>', this)"><%= cat %></button>
+        <% }) %>
+      </div>
+    </div>
+
+    <!-- Menu sections -->
+    <div id="menuContainer" class="space-y-10">
+      <% Object.entries(menuByCategory).forEach(([categoryName, items]) => { %>
+        <section class="menu-section slide-up" data-category="<%= categoryName %>">
+          <h2 class="menu-category-title"><%= categoryName %></h2>
+          <div class="menu-grid">
+            <% items.forEach(item => { %>
+              <article class="menu-card group" id="menu-card-<%= item.id %>">
+                <% if (item.image) { %>
+                  <img src="<%= item.image %>" alt="" class="menu-card-img" loading="lazy">
+                <% } else { %>
+                  <div class="menu-card-img flex items-center justify-center bg-gradient-to-br from-indigo-50 to-violet-50 text-3xl" aria-hidden="true">🍽️</div>
+                <% } %>
+                <div class="menu-card-info pl-0 sm:pl-1">
+                  <h3 class="menu-card-name text-gray-900 transition-colors group-hover:text-[#4F46E5]"><%= item.name %></h3>
+                  <% if (item.description) { %>
+                    <p class="menu-card-desc"><%= item.description %></p>
+                  <% } %>
+                  <div class="menu-card-footer">
+                    <span class="menu-card-price">₹<%= parseFloat(item.price).toFixed(0) %></span>
+                    <div class="qty-control" role="group" aria-label="Quantity for <%= item.name %>">
+                      <button type="button" class="qty-btn min-h-[44px] min-w-[44px]" onclick="changeQty('<%= item.id %>', -1)" aria-label="Decrease">−</button>
+                      <span class="qty-value py-2" id="qty-<%= item.id %>">0</span>
+                      <button type="button" class="qty-btn min-h-[44px] min-w-[44px]" onclick="changeQty('<%= item.id %>', 1)" aria-label="Increase">+</button>
+                    </div>
+                  </div>
+                </div>
+              </article>
+            <% }) %>
+          </div>
+        </section>
+      <% }) %>
+    </div>
+
+    <!-- Checkout / cart sheet -->
+    <div class="modal-overlay checkout-sheet-overlay" id="checkoutModal" role="dialog" aria-modal="true" aria-labelledby="checkoutTitle">
+      <div class="modal checkout-sheet-modal max-h-[92vh] w-full max-w-lg overflow-hidden rounded-2xl border border-gray-200 bg-white p-0 shadow-[0_-8px_40px_rgba(15,23,42,0.15)] sm:rounded-2xl sm:shadow-premium">
+        <div class="border-b border-gray-200 bg-white px-6 py-5">
+          <div class="flex items-start justify-between gap-3">
+            <div>
+              <p class="text-xs font-bold uppercase tracking-wider text-[#4F46E5]">Your cart</p>
+              <h3 id="checkoutTitle" class="font-outfit mt-1 text-xl font-bold text-gray-900">Checkout</h3>
+              <p class="mt-1 text-sm text-gray-500">Review before sending to the kitchen</p>
+            </div>
+            <button type="button" class="modal-close shrink-0 transition hover:bg-gray-200" onclick="document.getElementById('checkoutModal').classList.remove('active')" aria-label="Close">×</button>
+          </div>
+        </div>
+        <div class="max-h-[min(52vh,420px)] overflow-y-auto bg-[#F3F4F6] px-4 py-4" id="orderSummary"></div>
+        <div class="space-y-4 border-t border-gray-200 bg-white px-6 py-5">
+          <div class="form-group mb-0">
+            <label class="form-label" for="customerName">Your name <span class="font-normal text-gray-400">(optional)</span></label>
+            <input type="text" id="customerName" class="form-input border-gray-200" placeholder="e.g. Alex" autocomplete="name">
+          </div>
+          <div class="form-group mb-0">
+            <label class="form-label" for="orderNotes">Special notes <span class="font-normal text-gray-400">(optional)</span></label>
+            <textarea id="orderNotes" class="form-textarea border-gray-200" rows="2" placeholder="Allergies, spice level, etc."></textarea>
+          </div>
+          <button type="button" class="btn btn-primary btn-lg w-full min-h-[52px] rounded-2xl border-0 text-base" style="background: linear-gradient(180deg,#6366f1,#4F46E5); box-shadow: 0 4px 14px rgba(79,70,229,0.45);" id="placeOrderBtn" onclick="placeOrder()">
+            Place order
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sticky cart bar -->
+    <div class="cart-bar hidden slide-up" id="cartBar">
+      <div class="cart-info min-w-0">
+        <span class="cart-count text-gray-500" id="cartCount">0 items</span>
+        <span class="cart-total font-outfit text-[#4F46E5]" id="cartTotal">₹0</span>
+      </div>
+      <button type="button" class="btn btn-primary min-h-[48px] rounded-xl px-6 shadow-md" onclick="showCheckout()">View cart</button>
+    </div>
+  </div>
+
+  <%- include('../partials/scripts.ejs') %>
+  <style>
+    .checkout-sheet-overlay { align-items: flex-end; padding: 0; background: rgba(15, 23, 42, 0.5); }
+    @media (min-width: 640px) {
+      .checkout-sheet-overlay { align-items: center; padding: 1rem; }
+    }
+    .checkout-sheet-overlay .modal { transform: translateY(100%); }
+    .checkout-sheet-overlay.active .modal { transform: translateY(0); }
+    @media (min-width: 640px) {
+      .checkout-sheet-overlay .modal { transform: translateY(16px) scale(0.98); }
+      .checkout-sheet-overlay.active .modal { transform: translateY(0) scale(1); }
+    }
+  </style>
+  <script>
+    const cart = {};
+    const menuItems = {};
+    <% Object.values(menuByCategory).forEach(items => { %>
+      <% items.forEach(item => { %>
+        menuItems['<%= item.id %>'] = {
+          id: '<%= item.id %>',
+          name: '<%= item.name.replace(/'/g, "\\'").replace(/\n/g, ' ') %>',
+          price: <%= parseFloat(item.price) %>,
+        };
+      <% }) %>
+    <% }) %>
+
+    function changeQty(itemId, delta) {
+      if (!cart[itemId]) cart[itemId] = 0;
+      cart[itemId] = Math.max(0, cart[itemId] + delta);
+      const el = document.getElementById('qty-' + itemId);
+      if (el) el.textContent = cart[itemId];
+      const card = document.getElementById('menu-card-' + itemId);
+      if (card) card.classList.toggle('menu-card--active', cart[itemId] > 0);
+      updateCartBar();
+    }
+
+    function updateCartBar() {
+      let totalItems = 0;
+      let totalPrice = 0;
+      for (const [id, qty] of Object.entries(cart)) {
+        if (qty > 0 && menuItems[id]) {
+          totalItems += qty;
+          totalPrice += qty * menuItems[id].price;
+        }
+      }
+      const cartBar = document.getElementById('cartBar');
+      document.getElementById('cartCount').textContent = totalItems + ' item' + (totalItems !== 1 ? 's' : '');
+      document.getElementById('cartTotal').textContent = '₹' + totalPrice.toFixed(0);
+      cartBar.classList.toggle('hidden', totalItems === 0);
+    }
+
+    function showCheckout() {
+      let rows = '';
+      let total = 0;
+      for (const [id, qty] of Object.entries(cart)) {
+        if (qty > 0 && menuItems[id]) {
+          const item = menuItems[id];
+          const subtotal = qty * item.price;
+          total += subtotal;
+          rows +=
+            '<div class="flex items-start justify-between gap-3 rounded-xl border border-gray-200 bg-white px-4 py-3 shadow-sm transition hover:border-gray-300 hover:shadow-md">' +
+            '<div class="min-w-0"><p class="font-semibold text-gray-900">' + escapeHtml(item.name) + '</p>' +
+            '<p class="mt-0.5 text-sm text-gray-500">' + qty + ' × ₹' + item.price.toFixed(0) + '</p></div>' +
+            '<p class="shrink-0 font-bold tabular-nums text-gray-900">₹' + subtotal.toFixed(0) + '</p></div>';
+        }
+      }
+      const html =
+        '<div class="flex flex-col gap-3">' + rows + '</div>' +
+        '<div class="mt-5 flex items-center justify-between rounded-xl border border-gray-200 bg-white px-5 py-4 shadow-surface">' +
+        '<span class="text-xs font-bold uppercase tracking-wider text-gray-500">Total</span>' +
+        '<span class="text-xl font-extrabold tabular-nums text-[#4F46E5]">₹' + total.toFixed(0) + '</span></div>';
+      document.getElementById('orderSummary').innerHTML = html;
+      document.getElementById('checkoutModal').classList.add('active');
+    }
+
+    function escapeHtml(s) {
+      const d = document.createElement('div');
+      d.textContent = s;
+      return d.innerHTML;
+    }
+
+    async function placeOrder() {
+      const btn = document.getElementById('placeOrderBtn');
+      if (typeof setBtnLoading === 'function') setBtnLoading(btn, 'Placing order…');
+      else btn.disabled = true;
+
+      const items = [];
+      for (const [id, qty] of Object.entries(cart)) {
+        if (qty > 0) items.push({ menu_item_id: id, quantity: qty, name: menuItems[id].name });
+      }
+
+      try {
+        const res = await fetch('/r/<%= restaurantId %>/table/<%= tableId %>/order', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            customer_name: document.getElementById('customerName').value || 'Guest',
+            notes: document.getElementById('orderNotes').value,
+            items,
+          }),
+        });
+        const data = await res.json();
+        if (data.success) {
+          window.location.href = data.redirectUrl;
+        } else {
+          const msg = data.error || 'Could not place order';
+          if (typeof showToast === 'function') showToast(msg, 'error');
+          else alert(msg);
+          if (typeof resetBtnLoading === 'function') resetBtnLoading(btn);
+          else { btn.disabled = false; btn.textContent = 'Place order'; }
+        }
+      } catch (err) {
+        console.error(err);
+        const msg = 'Network error. Please try again.';
+        if (typeof showToast === 'function') showToast(msg, 'error');
+        else alert(msg);
+        if (typeof resetBtnLoading === 'function') resetBtnLoading(btn);
+        else { btn.disabled = false; btn.textContent = 'Place order'; }
+      }
+    }
+
+    function filterCategory(category, btn) {
+      document.querySelectorAll('.category-tab').forEach(function (t) { t.classList.remove('active'); });
+      btn.classList.add('active');
+      document.querySelectorAll('.menu-section').forEach(function (section) {
+        if (category === 'all') section.style.display = '';
+        else section.style.display = section.dataset.category === category ? '' : 'none';
+      });
+    }
+
+    document.querySelectorAll('#checkoutModal.modal-overlay').forEach(function (overlay) {
+      overlay.addEventListener('click', function (e) {
+        if (e.target === overlay) overlay.classList.remove('active');
+      });
+    });
+  </script>
+</body>
+</html>

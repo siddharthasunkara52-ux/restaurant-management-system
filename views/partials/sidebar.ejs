@@ -1,0 +1,84 @@
+<aside class="sidebar group transition-all duration-300" id="app-sidebar">
+  <div class="flex items-center gap-3 mb-10 px-2">
+    <div class="w-10 h-10 bg-primary-600 rounded-xl flex items-center justify-center shadow-lg shadow-primary-500/20">
+      <i data-lucide="utensils-crossed" class="text-white w-6 h-6"></i>
+    </div>
+    <span class="font-outfit font-bold text-xl tracking-tight sidebar-brand-text">Resto<span class="text-primary-600">OS</span></span>
+  </div>
+
+  <nav class="flex-1 flex flex-col gap-1">
+    <a href="/admin/dashboard" 
+       class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 group/link
+              <%= active === 'dashboard' ? 'bg-primary-50 text-primary-600' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900' %>">
+      <i data-lucide="layout-dashboard" class="w-5 h-5 <%= active === 'dashboard' ? 'text-primary-600' : 'text-gray-400 group-hover/link:text-gray-900' %>"></i>
+      <span class="font-medium text-sm sidebar-link-text">Dashboard</span>
+      <% if (active === 'dashboard') { %>
+        <div class="ml-auto w-1.5 h-1.5 rounded-full bg-primary-600"></div>
+      <% } %>
+    </a>
+
+    <a href="/admin/menu" 
+       class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 group/link
+              <%= active === 'menu' ? 'bg-primary-50 text-primary-600' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900' %>">
+      <i data-lucide="pizza" class="w-5 h-5 <%= active === 'menu' ? 'text-primary-600' : 'text-gray-400 group-hover/link:text-gray-900' %>"></i>
+      <span class="font-medium text-sm sidebar-link-text">Menu Items</span>
+      <% if (active === 'menu') { %>
+        <div class="ml-auto w-1.5 h-1.5 rounded-full bg-primary-600"></div>
+      <% } %>
+    </a>
+
+    <a href="/admin/categories" 
+       class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 group/link
+              <%= active === 'categories' ? 'bg-primary-50 text-primary-600' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900' %>">
+      <i data-lucide="layers" class="w-5 h-5 <%= active === 'categories' ? 'text-primary-600' : 'text-gray-400 group-hover/link:text-gray-900' %>"></i>
+      <span class="font-medium text-sm sidebar-link-text">Categories</span>
+      <% if (active === 'categories') { %>
+        <div class="ml-auto w-1.5 h-1.5 rounded-full bg-primary-600"></div>
+      <% } %>
+    </a>
+
+    <a href="/admin/tables" 
+       class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 group/link
+              <%= active === 'tables' ? 'bg-primary-50 text-primary-600' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900' %>">
+      <i data-lucide="qr-code" class="w-5 h-5 <%= active === 'tables' ? 'text-primary-600' : 'text-gray-400 group-hover/link:text-gray-900' %>"></i>
+      <span class="font-medium text-sm sidebar-link-text">Tables & QR</span>
+      <% if (active === 'tables') { %>
+        <div class="ml-auto w-1.5 h-1.5 rounded-full bg-primary-600"></div>
+      <% } %>
+    </a>
+
+    <a href="/admin/orders" 
+       class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 group/link
+              <%= active === 'orders' ? 'bg-primary-50 text-primary-600' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900' %>">
+      <i data-lucide="shopping-bag" class="w-5 h-5 <%= active === 'orders' ? 'text-primary-600' : 'text-gray-400 group-hover/link:text-gray-900' %>"></i>
+      <span class="font-medium text-sm sidebar-link-text">Orders</span>
+      <% if (active === 'orders') { %>
+        <div class="ml-auto w-1.5 h-1.5 rounded-full bg-primary-600"></div>
+      <% } %>
+    </a>
+
+    <div class="my-4 border-t border-gray-100 px-2"></div>
+
+    <a href="/kitchen" 
+       class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 group/link
+              <%= active === 'kitchen' ? 'bg-primary-50 text-primary-600' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900' %>">
+      <i data-lucide="chef-hat" class="w-5 h-5 <%= active === 'kitchen' ? 'text-primary-600' : 'text-gray-400 group-hover/link:text-gray-900' %>"></i>
+      <span class="font-medium text-sm sidebar-link-text">Kitchen View</span>
+      <% if (active === 'kitchen') { %>
+        <div class="ml-auto w-1.5 h-1.5 rounded-full bg-primary-600"></div>
+      <% } %>
+    </a>
+  </nav>
+
+  <div class="mt-auto px-2">
+    <div class="bg-gray-50 rounded-2xl p-4 mb-4 sidebar-link-text">
+       <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Active Restaurant</p>
+       <p class="text-sm font-bold text-gray-900 truncate"><%= typeof restaurant !== 'undefined' && restaurant ? restaurant.name : 'Restaurant' %></p>
+    </div>
+    
+    <a href="/auth/logout" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-red-500 hover:bg-red-50 transition-all duration-200 group/logout">
+      <i data-lucide="log-out" class="w-5 h-5 text-red-400 group-hover/logout:text-red-500"></i>
+      <span class="font-medium text-sm sidebar-link-text">Logout</span>
+    </a>
+  </div>
+</aside>

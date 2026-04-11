@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include('../partials/header.ejs', { title: title || 'Categories' }) %>
+<body class="bg-[#F3F4F6] font-inter text-gray-900 antialiased">
+  <div class="app-layout">
+    <%- include('../partials/mobile-nav.ejs') %>
+    <%- include('../partials/sidebar.ejs', { active: 'categories' }) %>
+
+    <main class="main-content">
+      <div class="page-header !mb-10 flex-wrap items-center gap-4 rounded-2xl border border-gray-200 bg-white p-6 shadow-surface lg:p-8">
+        <div>
+          <p class="text-xs font-bold uppercase tracking-wider text-primary-600">Organize</p>
+          <h1 class="page-title mt-1">Categories</h1>
+          <p class="page-subtitle">Group menu items for easier browsing</p>
+        </div>
+        <button type="button" class="btn btn-primary min-h-[48px] rounded-xl px-5 shadow-lg shadow-indigo-500/25 transition hover:-translate-y-0.5" onclick="document.getElementById('addModal').classList.add('active')">
+          <i data-lucide="layers" class="h-4 w-4"></i>
+          Add category
+        </button>
+      </div>
+
+      <div class="card !rounded-2xl !border-gray-200 !p-0 !shadow-surface overflow-hidden">
+        <% if (categories.length === 0) { %>
+          <div class="empty-state py-20">
+            <div class="empty-state-icon">📂</div>
+            <h3>No categories</h3>
+            <p class="text-muted">Create Starters, Mains, Drinks, and more</p>
+          </div>
+        <% } else { %>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th class="pl-8">Name</th>
+                <th>Sort order</th>
+                <th class="pr-8">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% categories.forEach(cat => { %>
+                <tr id="cat-<%= cat.id %>">
+                  <td class="pl-8"><strong class="text-gray-900"><%= cat.name %></strong></td>
+                  <td><%= cat.sort_order %></td>
+                  <td class="pr-8">
+                    <div class="actions">
+                      <button type="button" class="btn btn-ghost btn-sm min-h-[40px] rounded-lg" onclick="editCategory('<%= cat.id %>', '<%= cat.name.replace(/'/g, "\\'") %>', '<%= cat.sort_order %>')">Edit</button>
+                      <button type="button" class="btn btn-danger btn-sm min-h-[40px] rounded-lg" onclick="deleteCategory('<%= cat.id %>')">Delete</button>
+                    </div>
+                  </td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        <% } %>
+      </div>
+    </main>
+  </div>
+
+  <div class="modal-overlay" id="addModal">
+    <div class="modal !max-w-md !rounded-2xl">
+      <div class="modal-header">
+        <h3 class="modal-title">New category</h3>
+        <button type="button" class="modal-close" onclick="document.getElementById('addModal').classList.remove('active')">&times;</button>
+      </div>
+      <form method="POST" action="/admin/categories">
+        <div class="form-group">
+          <label class="form-label">Name</label>
+          <input type="text" name="name" class="form-input" required placeholder="e.g. Main course">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Sort order</label>
+          <input type="number" name="sort_order" class="form-input" value="0" min="0">
+        </div>
+        <button type="submit" class="btn btn-primary btn-lg w-full rounded-xl">Create</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="editModal">
+    <div class="modal !max-w-md !rounded-2xl">
+      <div class="modal-header">
+        <h3 class="modal-title">Edit category</h3>
+        <button type="button" class="modal-close" onclick="document.getElementById('editModal').classList.remove('active')">&times;</button>
+      </div>
+      <form method="POST" id="editForm">
+        <div class="form-group">
+          <label class="form-label">Name</label>
+          <input type="text" name="name" id="editName" class="form-input" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Sort order</label>
+          <input type="number" name="sort_order" id="editSortOrder" class="form-input" min="0">
+        </div>
+        <button type="submit" class="btn btn-primary btn-lg w-full rounded-xl">Save changes</button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    <% if (success) { %>
+    document.addEventListener('DOMContentLoaded', function () {
+      if (typeof showToast === 'function') showToast(<%- JSON.stringify(success) %>, 'success');
+    });
+    <% } %>
+    <% if (error) { %>
+    document.addEventListener('DOMContentLoaded', function () {
+      if (typeof showToast === 'function') showToast(<%- JSON.stringify(error) %>, 'error');
+    });
+    <% } %>
+
+    function editCategory(id, name, sortOrder) {
+      document.getElementById('editForm').action = '/admin/categories/' + id + '/update';
+      document.getElementById('editName').value = name;
+      document.getElementById('editSortOrder').value = sortOrder;
+      document.getElementById('editModal').classList.add('active');
+    }
+
+    async function deleteCategory(id) {
+      if (!confirm('Delete this category? Items will become uncategorized.')) return;
+      try {
+        const res = await fetch('/admin/categories/' + id, { method: 'DELETE' });
+        const data = await res.json();
+        if (data.success) {
+          const row = document.getElementById('cat-' + id);
+          if (row) row.remove();
+          if (typeof showToast === 'function') showToast('Category deleted', 'success');
+        }
+      } catch (err) {
+        console.error(err);
+        location.reload();
+      }
+    }
+
+    document.querySelectorAll('.modal-overlay').forEach(function (overlay) {
+      overlay.addEventListener('click', function (e) {
+        if (e.target === overlay) overlay.classList.remove('active');
+      });
+    });
+  </script>
+  <%- include('../partials/footer.ejs') %>

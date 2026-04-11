@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include('../partials/header.ejs', { title: title || 'Kitchen' }) %>
+<body class="bg-[#F3F4F6] font-inter text-gray-900 antialiased">
+  <div class="app-layout">
+    <%- include('../partials/mobile-nav.ejs') %>
+    <%- include('../partials/sidebar.ejs', { active: 'kitchen' }) %>
+
+    <main class="main-content">
+      <div class="kitchen-header mb-8 flex flex-col gap-4 rounded-2xl border border-gray-200 bg-white p-6 shadow-surface sm:flex-row sm:items-center sm:justify-between lg:p-8">
+        <div>
+          <p class="text-xs font-bold uppercase tracking-wider text-amber-600">Live queue</p>
+          <h1 class="page-title mt-1">Kitchen</h1>
+          <p class="page-subtitle"><%= totalActive %> active orders · one tap to update</p>
+        </div>
+        <div class="actions">
+          <span class="auto-refresh-badge">
+            <span class="dot" aria-hidden="true"></span>
+            Auto-refresh 10s
+          </span>
+          <a href="/admin/dashboard" class="btn btn-ghost btn-sm min-h-[44px] rounded-xl border border-gray-200 bg-gray-50 shadow-sm transition hover:border-primary-200 hover:bg-primary-50 sm:min-h-0">
+            <i data-lucide="layout-dashboard" class="h-4 w-4"></i>
+            Admin
+          </a>
+        </div>
+      </div>
+
+      <div class="kanban-board">
+        <div class="kanban-column col-pending">
+          <div class="kanban-header">
+            <div class="kanban-title flex items-center gap-2">
+              <span class="h-2.5 w-2.5 rounded-full bg-amber-400" aria-hidden="true"></span>
+              New orders
+            </div>
+            <span class="kanban-count"><%= pending.length %></span>
+          </div>
+          <div class="kanban-cards" id="pendingColumn">
+            <% if (pending.length === 0) { %>
+              <div class="empty-state py-10">
+                <p class="text-muted text-sm font-medium">No pending orders</p>
+              </div>
+            <% } %>
+            <% pending.forEach(order => { %>
+              <div class="kanban-card" id="kcard-<%= order.id %>">
+                <div class="kanban-card-header">
+                  <span class="kanban-card-table">Table <%= order.table_number %></span>
+                  <span class="kanban-card-time"><%= new Date(order.created_at).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }) %></span>
+                </div>
+                <% if (order.customer_name) { %>
+                  <p class="mb-2 text-xs font-semibold text-gray-500"><%= order.customer_name %></p>
+                <% } %>
+                <ul class="kanban-card-items">
+                  <% if (order.items && order.items[0] && order.items[0].id) { %>
+                    <% order.items.forEach(item => { %>
+                      <li>
+                        <strong><%= item.quantity %>×</strong> <%= item.item_name %>
+                        <% if (item.special_instructions) { %>
+                          <br><small class="font-medium text-amber-700">Note: <%= item.special_instructions %></small>
+                        <% } %>
+                      </li>
+                    <% }) %>
+                  <% } %>
+                </ul>
+                <div class="flex gap-2">
+                  <button type="button" class="btn btn-primary min-h-[48px] flex-1 rounded-xl text-sm font-bold shadow-md shadow-indigo-500/20" onclick="updateStatus('<%= order.id %>', 'preparing')">
+                    Start preparing
+                  </button>
+                  <button type="button" class="btn btn-danger min-h-[48px] min-w-[48px] shrink-0 rounded-xl px-3 text-lg font-bold" onclick="updateStatus('<%= order.id %>', 'cancelled')" title="Cancel order">×</button>
+                </div>
+              </div>
+            <% }) %>
+          </div>
+        </div>
+
+        <div class="kanban-column col-preparing">
+          <div class="kanban-header">
+            <div class="kanban-title flex items-center gap-2">
+              <span class="h-2.5 w-2.5 rounded-full bg-blue-500" aria-hidden="true"></span>
+              Preparing
+            </div>
+            <span class="kanban-count"><%= preparing.length %></span>
+          </div>
+          <div class="kanban-cards" id="preparingColumn">
+            <% if (preparing.length === 0) { %>
+              <div class="empty-state py-10">
+                <p class="text-muted text-sm font-medium">Nothing on the line</p>
+              </div>
+            <% } %>
+            <% preparing.forEach(order => { %>
+              <div class="kanban-card" id="kcard-<%= order.id %>">
+                <div class="kanban-card-header">
+                  <span class="kanban-card-table">Table <%= order.table_number %></span>
+                  <span class="kanban-card-time"><%= new Date(order.created_at).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }) %></span>
+                </div>
+                <ul class="kanban-card-items">
+                  <% if (order.items && order.items[0] && order.items[0].id) { %>
+                    <% order.items.forEach(item => { %>
+                      <li><strong><%= item.quantity %>×</strong> <%= item.item_name %></li>
+                    <% }) %>
+                  <% } %>
+                </ul>
+                <button type="button" class="btn btn-primary min-h-[48px] w-full rounded-xl border-0 bg-gradient-to-r from-blue-600 to-indigo-600 text-sm font-bold shadow-md shadow-blue-500/25 hover:from-blue-700 hover:to-indigo-700" onclick="updateStatus('<%= order.id %>', 'ready')">
+                  Mark ready
+                </button>
+              </div>
+            <% }) %>
+          </div>
+        </div>
+
+        <div class="kanban-column col-ready">
+          <div class="kanban-header">
+            <div class="kanban-title flex items-center gap-2">
+              <span class="h-2.5 w-2.5 rounded-full bg-emerald-500" aria-hidden="true"></span>
+              Ready to serve
+            </div>
+            <span class="kanban-count"><%= ready.length %></span>
+          </div>
+          <div class="kanban-cards" id="readyColumn">
+            <% if (ready.length === 0) { %>
+              <div class="empty-state py-10">
+                <p class="text-muted text-sm font-medium">No orders waiting</p>
+              </div>
+            <% } %>
+            <% ready.forEach(order => { %>
+              <div class="kanban-card border-emerald-100" id="kcard-<%= order.id %>">
+                <div class="kanban-card-header">
+                  <span class="kanban-card-table">Table <%= order.table_number %></span>
+                  <span class="kanban-card-time"><%= new Date(order.created_at).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }) %></span>
+                </div>
+                <ul class="kanban-card-items">
+                  <% if (order.items && order.items[0] && order.items[0].id) { %>
+                    <% order.items.forEach(item => { %>
+                      <li><strong><%= item.quantity %>×</strong> <%= item.item_name %></li>
+                    <% }) %>
+                  <% } %>
+                </ul>
+                <button type="button" class="btn btn-success min-h-[48px] w-full rounded-xl text-sm font-bold" onclick="updateStatus('<%= order.id %>', 'served')">
+                  Mark served
+                </button>
+              </div>
+            <% }) %>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    async function updateStatus(id, status) {
+      try {
+        const res = await fetch('/kitchen/orders/' + id + '/status', {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status }),
+        });
+        const data = await res.json();
+        if (data.success) {
+          location.reload();
+        } else if (typeof showToast === 'function') {
+          showToast(data.error || 'Update failed', 'error');
+        }
+      } catch (err) {
+        console.error(err);
+        if (typeof showToast === 'function') showToast('Network error', 'error');
+      }
+    }
+    setInterval(function () {
+      location.reload();
+    }, 10000);
+  </script>
+  <%- include('../partials/footer.ejs') %>

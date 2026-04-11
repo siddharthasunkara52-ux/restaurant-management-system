@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include('../partials/header.ejs', { title: 'Dashboard' }) %>
+<body class="bg-[#F3F4F6] font-inter text-gray-900 antialiased">
+  <div class="app-layout">
+    <%- include('../partials/mobile-nav.ejs') %>
+    <%- include('../partials/sidebar.ejs', { active: 'dashboard' }) %>
+
+    <main class="main-content">
+      <!-- Page header: white surface -->
+      <div class="mb-8 flex flex-col gap-4 rounded-2xl border border-gray-200 bg-white p-6 shadow-surface md:flex-row md:items-center md:justify-between lg:p-8">
+        <div>
+          <p class="text-xs font-bold uppercase tracking-wider text-primary-600">Overview</p>
+          <h1 class="page-title mt-1">Dashboard</h1>
+          <p class="mt-1 text-slate-500">Welcome back, <span class="font-semibold text-slate-800"><%= restaurant.name %></span></p>
+        </div>
+        <div class="flex flex-wrap items-center gap-3">
+          <a href="/kitchen" class="flex min-h-[44px] items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-primary-200 hover:bg-primary-50/50 hover:text-primary-700">
+            <i data-lucide="chef-hat" class="h-4 w-4"></i>
+            Kitchen
+          </a>
+          <button type="button" onclick="window.location.reload()" class="flex min-h-[44px] items-center gap-2 rounded-xl bg-primary-600 px-4 py-2 text-sm font-semibold text-white shadow-md shadow-primary-500/30 transition hover:-translate-y-0.5 hover:bg-primary-700 hover:shadow-lg hover:shadow-primary-500/35">
+            <i data-lucide="refresh-cw" class="h-4 w-4"></i>
+            Refresh
+          </button>
+        </div>
+      </div>
+
+      <!-- Stats: elevated cards on gray canvas -->
+      <div class="mb-10 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+        <div class="group cursor-default rounded-2xl border border-gray-200 bg-white p-6 shadow-surface transition duration-200 hover:-translate-y-1 hover:border-blue-200 hover:shadow-premium-hover">
+          <div class="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 text-blue-600 transition group-hover:bg-blue-600 group-hover:text-white">
+            <i data-lucide="package" class="h-6 w-6"></i>
+          </div>
+          <p class="text-xs font-bold uppercase tracking-wider text-slate-500">Today's orders</p>
+          <h3 class="mt-1 font-outfit text-2xl font-bold text-slate-900"><%= stats.todayOrders %></h3>
+        </div>
+
+        <div class="group cursor-default rounded-2xl border border-gray-200 bg-white p-6 shadow-surface transition duration-200 hover:-translate-y-1 hover:border-emerald-200 hover:shadow-premium-hover">
+          <div class="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600 transition group-hover:bg-emerald-600 group-hover:text-white">
+            <i data-lucide="indian-rupee" class="h-6 w-6"></i>
+          </div>
+          <p class="text-xs font-bold uppercase tracking-wider text-slate-500">Today's revenue</p>
+          <h3 class="mt-1 font-outfit text-2xl font-bold text-slate-900">₹<%= stats.todayRevenue.toLocaleString() %></h3>
+        </div>
+
+        <div class="group cursor-default rounded-2xl border border-gray-200 bg-white p-6 shadow-surface transition duration-200 hover:-translate-y-1 hover:border-amber-200 hover:shadow-premium-hover">
+          <div class="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-amber-50 text-amber-600 transition group-hover:bg-amber-600 group-hover:text-white">
+            <i data-lucide="flame" class="h-6 w-6"></i>
+          </div>
+          <p class="text-xs font-bold uppercase tracking-wider text-slate-500">Active orders</p>
+          <h3 class="mt-1 font-outfit text-2xl font-bold text-slate-900"><%= stats.activeOrders %></h3>
+        </div>
+
+        <div class="group cursor-default rounded-2xl border border-gray-200 bg-white p-6 shadow-surface transition duration-200 hover:-translate-y-1 hover:border-slate-300 hover:shadow-premium-hover">
+          <div class="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-slate-100 text-slate-600 transition group-hover:bg-slate-800 group-hover:text-white">
+            <i data-lucide="clipboard-list" class="h-6 w-6"></i>
+          </div>
+          <p class="text-xs font-bold uppercase tracking-wider text-slate-500">Total orders</p>
+          <h3 class="mt-1 font-outfit text-2xl font-bold text-slate-900"><%= stats.totalOrders %></h3>
+        </div>
+
+        <div class="group cursor-default rounded-2xl border border-gray-200 bg-white p-6 shadow-surface transition duration-200 hover:-translate-y-1 hover:border-indigo-200 hover:shadow-premium-hover">
+          <div class="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600 transition group-hover:bg-indigo-600 group-hover:text-white">
+            <i data-lucide="gem" class="h-6 w-6"></i>
+          </div>
+          <p class="text-xs font-bold uppercase tracking-wider text-slate-500">Total revenue</p>
+          <h3 class="mt-1 font-outfit text-2xl font-bold text-slate-900">₹<%= stats.totalRevenue.toLocaleString() %></h3>
+        </div>
+
+        <div class="group cursor-default rounded-2xl border border-gray-200 bg-white p-6 shadow-surface transition duration-200 hover:-translate-y-1 hover:border-rose-200 hover:shadow-premium-hover">
+          <div class="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-rose-50 text-rose-600 transition group-hover:bg-rose-600 group-hover:text-white">
+            <i data-lucide="utensils" class="h-6 w-6"></i>
+          </div>
+          <p class="text-xs font-bold uppercase tracking-wider text-slate-500">Menu items</p>
+          <h3 class="mt-1 font-outfit text-2xl font-bold text-slate-900"><%= stats.menuItems %></h3>
+        </div>
+      </div>
+
+      <!-- Recent orders -->
+      <div class="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-premium">
+        <div class="flex flex-col gap-2 border-b border-gray-200 bg-gray-50/80 px-6 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-8">
+          <div>
+            <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Activity</p>
+            <h2 class="text-lg font-bold text-slate-900">Recent orders</h2>
+          </div>
+          <a href="/admin/orders" class="inline-flex items-center gap-1 text-sm font-semibold text-primary-600 transition hover:text-primary-700">
+            View all
+            <i data-lucide="chevron-right" class="h-4 w-4"></i>
+          </a>
+        </div>
+
+        <div class="overflow-x-auto">
+          <% if (recentOrders.length === 0) { %>
+            <div class="px-6 py-20 text-center">
+              <div class="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-2xl border border-gray-100 bg-gray-50 text-slate-300 shadow-inner">
+                <i data-lucide="inbox" class="h-10 w-10"></i>
+              </div>
+              <h3 class="text-lg font-bold text-slate-900">No orders yet</h3>
+              <p class="mt-1 text-slate-500">Orders from QR menus will show up here.</p>
+            </div>
+          <% } else { %>
+            <table class="w-full border-collapse text-left">
+              <thead>
+                <tr class="border-b border-gray-200 bg-gray-100/90">
+                  <th class="px-8 py-4 text-xs font-bold uppercase tracking-wider text-slate-500">Order ID</th>
+                  <th class="px-4 py-4 text-xs font-bold uppercase tracking-wider text-slate-500">Table / Guest</th>
+                  <th class="px-4 py-4 text-xs font-bold uppercase tracking-wider text-slate-500">Status</th>
+                  <th class="px-4 py-4 text-right text-xs font-bold uppercase tracking-wider text-slate-500">Total</th>
+                  <th class="px-8 py-4 text-right text-xs font-bold uppercase tracking-wider text-slate-500">Time</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-gray-100">
+                <% recentOrders.forEach(order => { %>
+                  <tr class="cursor-pointer transition hover:bg-gray-50/90">
+                    <td class="px-8 py-4">
+                      <span class="rounded-lg border border-gray-200 bg-gray-50 px-2 py-1 font-mono text-xs font-semibold text-slate-600">#<%= order.id.substring(0, 8) %></span>
+                    </td>
+                    <td class="px-4 py-4">
+                      <div class="flex flex-col">
+                        <span class="font-bold text-slate-900">Table <%= order.table_number %></span>
+                        <span class="text-xs text-slate-500"><%= order.customer_name || 'Anonymous Guest' %></span>
+                      </div>
+                    </td>
+                    <td class="px-4 py-4">
+                      <span class="badge badge-<%= order.status %> scale-95 origin-left"><%= order.status %></span>
+                    </td>
+                    <td class="px-4 py-4 text-right">
+                      <span class="font-bold text-slate-900">₹<%= parseFloat(order.total_price).toFixed(2) %></span>
+                      <p class="text-[10px] <%= order.payment_status === 'paid' ? 'text-emerald-500' : 'text-amber-500' %> font-bold uppercase"><%= order.payment_status %></p>
+                    </td>
+                    <td class="px-8 py-4 text-right text-slate-500 text-sm font-medium">
+                      <%= new Date(order.created_at).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }) %>
+                    </td>
+                  </tr>
+                <% }) %>
+              </tbody>
+            </table>
+          <% } %>
+        </div>
+      </div>
+    </main>
+  </div>
+  <%- include('../partials/footer.ejs') %>
+

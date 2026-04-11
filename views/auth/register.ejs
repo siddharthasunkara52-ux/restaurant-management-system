@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %> | RestaurantOS</title>
+  <meta name="description" content="Register on RestaurantOS">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <div class="auth-container">
+    <div class="auth-card slide-up" style="max-width: 480px;">
+      <div class="auth-logo">
+        <div class="auth-logo-icon" aria-hidden="true">🍽️</div>
+        <h1>RestaurantOS</h1>
+        <p>Register your restaurant in minutes</p>
+      </div>
+
+      <% if (error) { %>
+        <div class="auth-error" role="alert"><%= error %></div>
+      <% } %>
+
+      <form method="POST" action="/auth/register">
+        <div class="form-group">
+          <label class="form-label" for="name">Restaurant name</label>
+          <input type="text" id="name" name="name" class="form-input" placeholder="The Grand Kitchen" required autofocus>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="email">Email</label>
+          <input type="email" id="email" name="email" class="form-input" placeholder="hello@restaurant.com" required autocomplete="email">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="phone">Phone <span class="font-normal text-gray-400">(optional)</span></label>
+          <input type="tel" id="phone" name="phone" class="form-input" placeholder="+91 98765 43210" autocomplete="tel">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="address">Address <span class="font-normal text-gray-400">(optional)</span></label>
+          <textarea id="address" name="address" class="form-textarea" rows="2" placeholder="Street, city"></textarea>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="password">Password</label>
+            <input type="password" id="password" name="password" class="form-input" placeholder="Min 6 characters" required minlength="6" autocomplete="new-password">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="confirmPassword">Confirm</label>
+            <input type="password" id="confirmPassword" name="confirmPassword" class="form-input" placeholder="Repeat" required autocomplete="new-password">
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary btn-lg mt-2 w-full rounded-xl shadow-lg shadow-indigo-500/25">Create account</button>
+      </form>
+
+      <div class="auth-footer">
+        Already registered? <a href="/auth/login">Sign in</a>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
