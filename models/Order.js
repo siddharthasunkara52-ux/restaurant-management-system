@@ -1,4 +1,8 @@
-import { query, generateId, pool } from '../config/db.js';
+import {
+  generateId,
+  pool,
+  query,
+} from '../config/db.js';
 
 const Order = {
   create: async ({ restaurant_id, table_id, customer_name, notes }) => {

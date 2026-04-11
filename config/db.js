@@ -6,13 +6,27 @@ dotenv.config();
 
 const { Pool } = pkg;
 
+
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: {
-    rejectUnauthorized: false
-  }
+  host:     process.env.DB_HOST     || 'localhost',
+  port:     parseInt(process.env.DB_PORT) || 5432,
+  user:     process.env.DB_USER     || 'postgres',
+  password: process.env.DB_PASSWORD || '',
+  database: process.env.DB_NAME     || 'restaurant',
+ 
+
+  max: 10,            
+  idleTimeoutMillis: 30000, 
+  connectionTimeoutMillis: 5000, 
 });
 
+
+
+ 
+
+pool.on('connect', () => {
+  console.log('✅ New client connected to PostgreSQL');
+});
 pool.connect()
   .then(() => console.log("✅ Database connected"))
   .catch(err => {
