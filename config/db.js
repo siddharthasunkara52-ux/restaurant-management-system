@@ -1,32 +1,25 @@
-import pg from 'pg';
-import dotenv from 'dotenv';
 import crypto from 'crypto';
+import dotenv from 'dotenv';
+import pkg from 'pg';
 
 dotenv.config();
 
-
-
-const { Pool } = pg;
-
-console.log("DB:", process.env.DB_DATABASE);
-console.log("PASS:", process.env.DB_PASSWORD);
-
+const { Pool } = pkg;
 
 const pool = new Pool({
-  host: process.env.DB_HOST || 'localhost',
-  port: parseInt(process.env.DB_PORT) || 5432,
-  database: process.env.DB_DATABASE || 'restaurant_db',
-  user: process.env.DB_USER || 'postgres',
-  password: process.env.DB_PASSWORD || '',
-});
-pool.on('connect', () => {
-  console.log('📦 Connected to PostgreSQL');
+  connectionString: process.env.DATABASE_URL,
+  ssl: {
+    rejectUnauthorized: false
+  }
 });
 
-pool.on('error', (err) => {
-  console.error('❌ Unexpected error on idle client', err);
-  process.exit(-1);
-});
+pool.connect()
+  .then(() => console.log("✅ Database connected"))
+  .catch(err => {
+    console.error("❌ DB Connection Error:", err.message);
+    process.exit(1);
+  });
+
 
 const query = async (text, params) => {
   const start = Date.now();
@@ -167,5 +160,5 @@ const initDB = async () => {
   }
 };
 
-export { pool, query, generateId, initDB };
+export { generateId, initDB, pool, query };
 export default { pool, query, generateId, initDB };
