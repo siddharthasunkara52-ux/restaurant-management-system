@@ -1,17 +1,20 @@
+import dotenv from 'dotenv';
 import express from 'express';
 import session from 'express-session';
-import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
 import { initDB } from './config/db.js';
-import authRoutes from './routes/authRoutes.js';
+import {
+  errorHandler,
+  notFound,
+} from './middleware/errorHandler.js';
 import adminRoutes from './routes/adminRoutes.js';
+import authRoutes from './routes/authRoutes.js';
 import customerRoutes from './routes/customerRoutes.js';
 import kitchenRoutes from './routes/kitchenRoutes.js';
-import qrRoutes from './routes/qrRoutes.js';
 import paymentRoutes from './routes/paymentRoutes.js';
-import { errorHandler, notFound } from './middleware/errorHandler.js';
+import qrRoutes from './routes/qrRoutes.js';
 
 dotenv.config();
 const __filename = fileURLToPath(import.meta.url);
