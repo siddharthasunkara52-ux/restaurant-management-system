@@ -3,12 +3,12 @@ import MenuItem from '../models/MenuItem.js';
 import Category from '../models/Category.js';
 import Table from '../models/Table.js';
 import Order from '../models/Order.js';
-
+import puppeteer from 'puppeteer';
+import { generateReceiptPdf } from '../utils/pdfGenerator.js';
 const customerController = {
   showMenu: async (req, res, next) => {
     try {
       const { restaurantId, tableId } = req.params;
-
       const restaurant = await Restaurant.findById(restaurantId);
       if (!restaurant) {
         return res.status(404).render('error', {
@@ -18,7 +18,6 @@ const customerController = {
           restaurant: null,
         });
       }
-
       const table = await Table.findById(tableId);
       if (!table || table.restaurant_id !== restaurantId) {
         return res.status(404).render('error', {
@@ -28,7 +27,6 @@ const customerController = {
           restaurant: null,
         });
       }
-
       if (!table.is_active) {
         return res.status(400).render('error', {
           title: 'Table Inactive',
@@ -37,14 +35,10 @@ const customerController = {
           restaurant: null,
         });
       }
-
       const menuItems = await MenuItem.findAvailableByRestaurant(restaurantId);
       const categories = await Category.findByRestaurant(restaurantId);
-
-      // Group menu items by category
       const menuByCategory = {};
       const uncategorized = [];
-
       for (const item of menuItems) {
         if (item.category_name) {
           if (!menuByCategory[item.category_name]) {
@@ -55,11 +49,9 @@ const customerController = {
           uncategorized.push(item);
         }
       }
-
       if (uncategorized.length > 0) {
         menuByCategory['Other'] = uncategorized;
       }
-
       res.render('customer/menu', {
         title: `${restaurant.name} - Menu`,
         restaurantData: restaurant,
@@ -74,17 +66,13 @@ const customerController = {
       next(err);
     }
   },
-
   placeOrder: async (req, res, next) => {
     try {
       const { restaurantId, tableId } = req.params;
-      const { customer_name, notes, items } = req.body;
-
+      const { customer_name, customer_email, notes, items } = req.body;
       if (!items || items.length === 0) {
         return res.status(400).json({ success: false, error: 'No items in order' });
       }
-
-      // Validate items and get prices
       const orderItems = [];
       for (const item of items) {
         const menuItem = await MenuItem.findById(item.menu_item_id);
@@ -101,16 +89,14 @@ const customerController = {
           special_instructions: item.special_instructions || null,
         });
       }
-
       const order = await Order.create({
         restaurant_id: restaurantId,
         table_id: tableId,
         customer_name: customer_name || 'Guest',
+        customer_email: customer_email || null,
         notes,
       });
-
       const result = await Order.addItems(order.id, orderItems);
-
       res.json({
         success: true,
         order: result.order,
@@ -120,12 +106,10 @@ const customerController = {
       next(err);
     }
   },
-
   orderStatus: async (req, res, next) => {
     try {
       const { orderId } = req.params;
       const order = await Order.findById(orderId);
-
       if (!order) {
         return res.status(404).render('error', {
           title: 'Not Found',
@@ -134,7 +118,6 @@ const customerController = {
           restaurant: null,
         });
       }
-
       res.render('customer/orderStatus', {
         title: `Order #${order.id.substring(0, 8)}`,
         order,
@@ -144,16 +127,13 @@ const customerController = {
       next(err);
     }
   },
-
   orderStatusApi: async (req, res, next) => {
     try {
       const { orderId } = req.params;
       const order = await Order.findById(orderId);
-
       if (!order) {
         return res.status(404).json({ success: false, error: 'Order not found' });
       }
-
       res.json({
         success: true,
         status: order.status,
@@ -165,6 +145,26 @@ const customerController = {
       next(err);
     }
   },
+  downloadReceipt: async (req, res, next) => {
+    try {
+      const { orderId } = req.params;
+      const order = await Order.findById(orderId);
+      if (!order) {
+        return res.status(404).json({ success: false, error: 'Order not found' });
+      }
+      const restaurant = await Restaurant.findById(order.restaurant_id);
+      try {
+        const pdfBuffer = await generateReceiptPdf(req.app, order, restaurant);
+        res.setHeader('Content-disposition', `attachment; filename=receipt-${orderId.substring(0, 8)}.pdf`);
+        res.setHeader('Content-type', 'application/pdf');
+        res.send(pdfBuffer);
+      } catch (pdfError) {
+        console.error("PDF Generation Error:", pdfError);
+        res.status(500).json({ success: false, error: 'Failed to create PDF file' });
+      }
+    } catch (err) {
+      next(err);
+    }
+  },
 };
-
 export default customerController;

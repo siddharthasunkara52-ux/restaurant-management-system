@@ -5,9 +5,7 @@
   <div class="app-layout">
     <%- include('../partials/mobile-nav.ejs') %>
     <%- include('../partials/sidebar.ejs', { active: 'dashboard' }) %>
-
     <main class="main-content">
-      <!-- Page header: white surface -->
       <div class="mb-8 flex flex-col gap-4 rounded-2xl border border-gray-200 bg-white p-6 shadow-surface md:flex-row md:items-center md:justify-between lg:p-8">
         <div>
           <p class="text-xs font-bold uppercase tracking-wider text-primary-600">Overview</p>
@@ -25,8 +23,6 @@
           </button>
         </div>
       </div>
-
-      <!-- Stats: elevated cards on gray canvas -->
       <div class="mb-10 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
         <div class="group cursor-default rounded-2xl border border-gray-200 bg-white p-6 shadow-surface transition duration-200 hover:-translate-y-1 hover:border-blue-200 hover:shadow-premium-hover">
           <div class="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 text-blue-600 transition group-hover:bg-blue-600 group-hover:text-white">
@@ -35,7 +31,6 @@
           <p class="text-xs font-bold uppercase tracking-wider text-slate-500">Today's orders</p>
           <h3 class="mt-1 font-outfit text-2xl font-bold text-slate-900"><%= stats.todayOrders %></h3>
         </div>
-
         <div class="group cursor-default rounded-2xl border border-gray-200 bg-white p-6 shadow-surface transition duration-200 hover:-translate-y-1 hover:border-emerald-200 hover:shadow-premium-hover">
           <div class="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600 transition group-hover:bg-emerald-600 group-hover:text-white">
             <i data-lucide="indian-rupee" class="h-6 w-6"></i>
@@ -43,7 +38,6 @@
           <p class="text-xs font-bold uppercase tracking-wider text-slate-500">Today's revenue</p>
           <h3 class="mt-1 font-outfit text-2xl font-bold text-slate-900">₹<%= stats.todayRevenue.toLocaleString() %></h3>
         </div>
-
         <div class="group cursor-default rounded-2xl border border-gray-200 bg-white p-6 shadow-surface transition duration-200 hover:-translate-y-1 hover:border-amber-200 hover:shadow-premium-hover">
           <div class="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-amber-50 text-amber-600 transition group-hover:bg-amber-600 group-hover:text-white">
             <i data-lucide="flame" class="h-6 w-6"></i>
@@ -51,7 +45,6 @@
           <p class="text-xs font-bold uppercase tracking-wider text-slate-500">Active orders</p>
           <h3 class="mt-1 font-outfit text-2xl font-bold text-slate-900"><%= stats.activeOrders %></h3>
         </div>
-
         <div class="group cursor-default rounded-2xl border border-gray-200 bg-white p-6 shadow-surface transition duration-200 hover:-translate-y-1 hover:border-slate-300 hover:shadow-premium-hover">
           <div class="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-slate-100 text-slate-600 transition group-hover:bg-slate-800 group-hover:text-white">
             <i data-lucide="clipboard-list" class="h-6 w-6"></i>
@@ -59,7 +52,6 @@
           <p class="text-xs font-bold uppercase tracking-wider text-slate-500">Total orders</p>
           <h3 class="mt-1 font-outfit text-2xl font-bold text-slate-900"><%= stats.totalOrders %></h3>
         </div>
-
         <div class="group cursor-default rounded-2xl border border-gray-200 bg-white p-6 shadow-surface transition duration-200 hover:-translate-y-1 hover:border-indigo-200 hover:shadow-premium-hover">
           <div class="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600 transition group-hover:bg-indigo-600 group-hover:text-white">
             <i data-lucide="gem" class="h-6 w-6"></i>
@@ -67,7 +59,6 @@
           <p class="text-xs font-bold uppercase tracking-wider text-slate-500">Total revenue</p>
           <h3 class="mt-1 font-outfit text-2xl font-bold text-slate-900">₹<%= stats.totalRevenue.toLocaleString() %></h3>
         </div>
-
         <div class="group cursor-default rounded-2xl border border-gray-200 bg-white p-6 shadow-surface transition duration-200 hover:-translate-y-1 hover:border-rose-200 hover:shadow-premium-hover">
           <div class="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-rose-50 text-rose-600 transition group-hover:bg-rose-600 group-hover:text-white">
             <i data-lucide="utensils" class="h-6 w-6"></i>
@@ -76,8 +67,6 @@
           <h3 class="mt-1 font-outfit text-2xl font-bold text-slate-900"><%= stats.menuItems %></h3>
         </div>
       </div>
-
-      <!-- Recent orders -->
       <div class="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-premium">
         <div class="flex flex-col gap-2 border-b border-gray-200 bg-gray-50/80 px-6 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-8">
           <div>
@@ -89,7 +78,6 @@
             <i data-lucide="chevron-right" class="h-4 w-4"></i>
           </a>
         </div>
-
         <div class="overflow-x-auto">
           <% if (recentOrders.length === 0) { %>
             <div class="px-6 py-20 text-center">
@@ -142,4 +130,3 @@
     </main>
   </div>
   <%- include('../partials/footer.ejs') %>
-

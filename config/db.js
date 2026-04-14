@@ -1,43 +1,35 @@
 import crypto from 'crypto';
-import dotenv from 'dotenv';
 import pkg from 'pg';
-
-dotenv.config();
 
 const { Pool } = pkg;
 
 
-const pool = new Pool({
-  host:     process.env.DB_HOST     || 'localhost',
-  port:     parseInt(process.env.DB_PORT) || 5432,
-  user:     process.env.DB_USER     || 'postgres',
-  password: process.env.DB_PASSWORD || '',
-  database: process.env.DB_NAME     || 'restaurant',
- 
+let pool = null;
 
-  max: 10,            
-  idleTimeoutMillis: 30000, 
-  connectionTimeoutMillis: 5000, 
-});
+function getPool() {
+  if (!pool) {
+    pool = new Pool({
+      host:     process.env.DB_HOST     || 'localhost',
+      port:     parseInt(process.env.DB_PORT) || 5432,
+      user:     process.env.DB_USER     || 'postgres',
+      password: process.env.DB_PASSWORD || '',
+      database: process.env.DB_NAME     || 'restaurant',
 
+      max: 10,
+      idleTimeoutMillis: 30000,
+      connectionTimeoutMillis: 5000,
+    });
 
-
- 
-
-pool.on('connect', () => {
-  console.log('✅ New client connected to PostgreSQL');
-});
-pool.connect()
-  .then(() => console.log("✅ Database connected"))
-  .catch(err => {
-    console.error("❌ DB Connection Error:", err.message);
-    process.exit(1);
-  });
-
+    pool.on('connect', () => {
+      console.log('New client connected to PostgreSQL');
+    });
+  }
+  return pool;
+}
 
 const query = async (text, params) => {
   const start = Date.now();
-  const res = await pool.query(text, params);
+  const res = await getPool().query(text, params);
   const duration = Date.now() - start;
   if (process.env.NODE_ENV !== 'production') {
     console.log('🔍 Query:', { text: text.substring(0, 80), duration: `${duration}ms`, rows: res.rowCount });
@@ -47,10 +39,8 @@ const query = async (text, params) => {
 
 const generateId = () => crypto.randomUUID();
 
-// Initialize database tables (creates them if they don't exist)
 const initDB = async () => {
   try {
-    // Enable UUID generation extension
     await query(`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`);
 
     await query(`
@@ -105,7 +95,6 @@ const initDB = async () => {
       )
     `);
 
-    // Create ENUM types if they don't exist
     await query(`
       DO $$ BEGIN
         CREATE TYPE order_status AS ENUM ('pending', 'confirmed', 'preparing', 'ready', 'served', 'cancelled');
@@ -151,7 +140,6 @@ const initDB = async () => {
       )
     `);
 
-    // Create indexes (IF NOT EXISTS for indexes isn't standard, so we use a workaround)
     const indexes = [
       'CREATE INDEX IF NOT EXISTS idx_menu_items_restaurant ON menu_items(restaurant_id)',
       'CREATE INDEX IF NOT EXISTS idx_menu_items_category ON menu_items(category_id)',
@@ -167,12 +155,20 @@ const initDB = async () => {
       await query(idx);
     }
 
-    console.log('✅ Database tables initialized successfully');
+    console.log(' Database tables initialized successfully');
   } catch (err) {
-    console.error('❌ Error initializing database:', err.message);
+    console.error('Error initializing database:', err.message);
     throw err;
   }
 };
 
-export { generateId, initDB, pool, query };
-export default { pool, query, generateId, initDB };
+
+const poolProxy = {
+  connect: (...args) => getPool().connect(...args),
+  query: (...args) => getPool().query(...args),
+  end: (...args) => getPool().end(...args),
+  on: (...args) => getPool().on(...args),
+};
+
+export { generateId, initDB, poolProxy as pool, query };
+export default { pool: poolProxy, query, generateId, initDB };

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # RestaurantOS — Restaurant Management System
 
 A production-ready full-stack Restaurant Management System with QR-based ordering, admin/kitchen dashboards, and Razorpay payment integration.
@@ -122,3 +123,6 @@ Navigate to `http://localhost:3000` → Register your restaurant → Start manag
 ## License
 
 ISC
+=======
+# FoodCheck
+>>>>>>> 6ea0e8d13221a20d75f2c4520aca41c739fc2dd0

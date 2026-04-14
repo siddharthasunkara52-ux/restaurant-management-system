@@ -1,13 +1,13 @@
 import { query, generateId } from '../config/db.js';
 
 const Table = {
-  create: async ({ restaurant_id, table_number, capacity }) => {
-    const id = generateId();
+  create: async ({ id, restaurant_id, table_number, capacity, qr_code_url }) => {
+    const tableId = id || generateId();
     await query(
-      `INSERT INTO tables (id, restaurant_id, table_number, capacity) VALUES ($1, $2, $3, $4)`,
-      [id, restaurant_id, table_number, capacity || 4]
+      `INSERT INTO tables (id, restaurant_id, table_number, capacity, qr_code_url) VALUES ($1, $2, $3, $4, $5)`,
+      [tableId, restaurant_id, table_number, capacity || 4, qr_code_url || null]
     );
-    const result = await query('SELECT * FROM tables WHERE id = $1', [id]);
+    const result = await query('SELECT * FROM tables WHERE id = $1', [tableId]);
     return result.rows[0];
   },
 

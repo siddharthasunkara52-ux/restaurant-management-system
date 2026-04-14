@@ -1,7 +1,11 @@
 <aside class="sidebar group transition-all duration-300" id="app-sidebar">
   <div class="flex items-center gap-3 mb-10 px-2">
-    <div class="w-10 h-10 bg-primary-600 rounded-xl flex items-center justify-center shadow-lg shadow-primary-500/20">
-      <i data-lucide="utensils-crossed" class="text-white w-6 h-6"></i>
+    <div class="w-10 h-10 bg-primary-600 rounded-xl flex items-center justify-center shadow-lg shadow-primary-500/20 overflow-hidden">
+      <% if (typeof restaurant !== 'undefined' && restaurant && restaurant.logo) { %>
+        <img src="<%= restaurant.logo %>" alt="Logo" class="w-full h-full object-cover">
+      <% } else { %>
+        <i data-lucide="utensils-crossed" class="text-white w-6 h-6"></i>
+      <% } %>
     </div>
     <span class="font-outfit font-bold text-xl tracking-tight sidebar-brand-text">Resto<span class="text-primary-600">OS</span></span>
   </div>
@@ -53,6 +57,16 @@
       <i data-lucide="shopping-bag" class="w-5 h-5 <%= active === 'orders' ? 'text-primary-600' : 'text-gray-400 group-hover/link:text-gray-900' %>"></i>
       <span class="font-medium text-sm sidebar-link-text">Orders</span>
       <% if (active === 'orders') { %>
+        <div class="ml-auto w-1.5 h-1.5 rounded-full bg-primary-600"></div>
+      <% } %>
+    </a>
+
+    <a href="/admin/settings" 
+       class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 group/link
+              <%= active === 'settings' ? 'bg-primary-50 text-primary-600' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900' %>">
+      <i data-lucide="settings" class="w-5 h-5 <%= active === 'settings' ? 'text-primary-600' : 'text-gray-400 group-hover/link:text-gray-900' %>"></i>
+      <span class="font-medium text-sm sidebar-link-text">Settings</span>
+      <% if (active === 'settings') { %>
         <div class="ml-auto w-1.5 h-1.5 rounded-full bg-primary-600"></div>
       <% } %>
     </a>

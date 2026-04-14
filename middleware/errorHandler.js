@@ -19,7 +19,7 @@ const errorHandler = (err, req, res, next) => {
   });
 };
 
-const notFound = (req, res) => {
+const notFound = (req, res, next) => {
   if (req.xhr || req.headers.accept?.includes('application/json')) {
     return res.status(404).json({ success: false, error: 'Route not found' });
   }

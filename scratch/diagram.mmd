@@ -1,0 +1,77 @@
+erDiagram
+    restaurants {
+        UUID id PK
+        VARCHAR name
+        VARCHAR email "UNIQUE"
+        VARCHAR password
+        VARCHAR logo
+        VARCHAR phone
+        TEXT address
+        TIMESTAMP created_at
+        TIMESTAMP updated_at
+    }
+
+    categories {
+        UUID id PK
+        UUID restaurant_id FK
+        VARCHAR name
+        INTEGER sort_order
+        TIMESTAMP created_at
+    }
+
+    menu_items {
+        UUID id PK
+        UUID restaurant_id FK
+        UUID category_id FK
+        VARCHAR name
+        TEXT description
+        DECIMAL price
+        VARCHAR image
+        BOOLEAN is_available
+        TIMESTAMP created_at
+        TIMESTAMP updated_at
+    }
+
+    tables {
+        UUID id PK
+        UUID restaurant_id FK
+        INTEGER table_number
+        INTEGER capacity
+        BOOLEAN is_active
+        VARCHAR qr_code_url
+        TIMESTAMP created_at
+    }
+
+    orders {
+        UUID id PK
+        UUID restaurant_id FK
+        UUID table_id FK
+        VARCHAR customer_name
+        order_status status
+        DECIMAL total_price
+        payment_status payment_status
+        VARCHAR razorpay_order_id
+        VARCHAR razorpay_payment_id
+        TEXT notes
+        TIMESTAMP created_at
+        TIMESTAMP updated_at
+    }
+
+    order_items {
+        UUID id PK
+        UUID order_id FK
+        UUID menu_item_id FK
+        INTEGER quantity
+        DECIMAL price
+        TEXT special_instructions
+        TIMESTAMP created_at
+    }
+
+    restaurants ||--o{ categories : "has many"
+    restaurants ||--o{ menu_items : "has many"
+    restaurants ||--o{ tables : "has many"
+    restaurants ||--o{ orders : "has many"
+    categories ||--o{ menu_items : "contains"
+    tables ||--o{ orders : "hosts"
+    orders ||--|{ order_items : "includes"
+    menu_items ||--o{ order_items : "ordered as"

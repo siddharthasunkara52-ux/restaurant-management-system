@@ -1,11 +1,12 @@
-import Restaurant from '../models/Restaurant.js';
-import MenuItem from '../models/MenuItem.js';
 import Category from '../models/Category.js';
-import Table from '../models/Table.js';
+import MenuItem from '../models/MenuItem.js';
 import Order from '../models/Order.js';
+import Restaurant from '../models/Restaurant.js';
+import Table from '../models/Table.js';
+import { generateId } from '../config/db.js';
 
 const adminController = {
-  // ── Dashboard ──
+  
   dashboard: async (req, res, next) => {
     try {
       const restaurantId = req.session.restaurant.id;
@@ -23,7 +24,7 @@ const adminController = {
     }
   },
 
-  // ── Menu Management ──
+ 
   menuList: async (req, res, next) => {
     try {
       const restaurantId = req.session.restaurant.id;
@@ -102,7 +103,7 @@ const adminController = {
     }
   },
 
-  // ── Category Management ──
+  
   categoryList: async (req, res, next) => {
     try {
       const restaurantId = req.session.restaurant.id;
@@ -157,7 +158,7 @@ const adminController = {
     }
   },
 
-  // ── Table Management ──
+  
   tableList: async (req, res, next) => {
     try {
       const restaurantId = req.session.restaurant.id;
@@ -181,11 +182,16 @@ const adminController = {
     try {
       const restaurantId = req.session.restaurant.id;
       const { table_number, capacity } = req.body;
+      const tableId = generateId();
+      const baseUrl = process.env.BASE_URL || `http://${req.get('host')}`;
+      const qr_code_url = `${baseUrl}/r/${restaurantId}/table/${tableId}`;
 
       await Table.create({
+        id: tableId,
         restaurant_id: restaurantId,
         table_number: parseInt(table_number),
         capacity: parseInt(capacity) || 4,
+        qr_code_url,
       });
 
       res.redirect('/admin/tables?success=Table created');
@@ -216,7 +222,7 @@ const adminController = {
     }
   },
 
-  // ── Order Management ──
+  
   orderList: async (req, res, next) => {
     try {
       const restaurantId = req.session.restaurant.id;
@@ -241,6 +247,41 @@ const adminController = {
       const { status } = req.body;
       await Order.updateStatus(id, status);
       res.json({ success: true });
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  settings: async (req, res, next) => {
+    try {
+      const restaurantId = req.session.restaurant.id;
+      const restaurant = await Restaurant.findById(restaurantId);
+
+      res.render('admin/settings', {
+        title: 'Settings',
+        restaurant,
+        success: req.query.success || null,
+        error: req.query.error || null,
+      });
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  updateSettings: async (req, res, next) => {
+    try {
+      const restaurantId = req.session.restaurant.id;
+      const { name, phone, address } = req.body;
+
+      let updatedRestaurant = await Restaurant.update(restaurantId, { name, phone, address });
+
+      if (req.file) {
+        const logo = `/uploads/${req.file.filename}`;
+        updatedRestaurant = await Restaurant.updateLogo(restaurantId, logo);
+      }
+
+      req.session.restaurant = updatedRestaurant;
+      res.redirect('/admin/settings?success=Restaurant updated');
     } catch (err) {
       next(err);
     }
